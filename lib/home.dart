@@ -167,81 +167,98 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    double maxWidth = 700; // 기본값 설정
+    if (maxWidthString != null) {
+      double? parsedMaxWidth = double.tryParse(maxWidthString);
+      if (parsedMaxWidth != null) {
+        maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당
+      }
+    }
+    double windowWidth = MediaQuery.of(context).size.width;
+    double widgetWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
+
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body:SafeArea(
         child: Align(
         alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [ Container(
-                child: OutlinedButton(
-                  onPressed: _goToUrlSummary,
-                  child: Text('Yotube', style: TextStyle(color: Colors.grey),),
+        child:
+          Container(
+            width: widgetWidth,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
 
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [ Container(
+                    child: OutlinedButton(
+                      onPressed: _goToUrlSummary,
+                      child: Text('Yotube', style: TextStyle(color: Colors.grey),),
+
+                    ),
+                  ),
+
+                    OutlinedButton(
+                      onPressed: _showLogoutConfirmationDialog,
+                      child: Text('X', style: TextStyle(color: Colors.grey)),
+
+                    ),],
                 ),
-              ),
+                Text('Recent Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
 
-                OutlinedButton(
-                  onPressed: _showLogoutConfirmationDialog,
-                  child: Text('X', style: TextStyle(color: Colors.grey)),
-
-                ),],
-            ),
-            Text('Recent Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                child: summary == null // summary가 null인 경우 로딩 중 화면을 보여줄 수 있음
-                    ? CircularProgressIndicator() // 로딩 중 표시
-                    : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < summary!.summaries.length; i++)
-                      GestureDetector(
-                        onTap: () {
-                          // Column을 터치할 때 실행할 함수 호출
-                          go_to_detail(
-                            summary!.summaries[i].video_id,
-                            summary!.summaries[i].title,
-                            summary!.summaries[i].summary,
-                          );
-                        },
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${summary!.summaries[i].title}', // 요약 정보의 제목 출력
-                              style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    child: summary == null // summary가 null인 경우 로딩 중 화면을 보여줄 수 있음
+                        ? CircularProgressIndicator() // 로딩 중 표시
+                        : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (int i = 0; i < summary!.summaries.length; i++)
+                          GestureDetector(
+                            onTap: () {
+                              // Column을 터치할 때 실행할 함수 호출
+                              go_to_detail(
+                                summary!.summaries[i].video_id,
+                                summary!.summaries[i].title,
+                                summary!.summaries[i].summary,
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${summary!.summaries[i].title}', // 요약 정보의 제목 출력
+                                  style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                                ),
+                                Text(
+                                  '${summary!.summaries[i].summary}', // 요약 정보의 내용 출력
+                                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 5,
+                                ),
+                                Container(
+                                  height: 1.0,
+                                  width: double.infinity,
+                                  color: Colors.grey[500],
+                                ),
+                                SizedBox(height: 10), // 아이템 간격 조절을 위한 간격 추가
+                              ],
                             ),
-                            Text(
-                              '${summary!.summaries[i].summary}', // 요약 정보의 내용 출력
-                              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 5,
-                            ),
-                            Container(
-                              height: 1.0,
-                              width: 500.0,
-                              color: Colors.grey[500],
-                            ),
-                            SizedBox(height: 10), // 아이템 간격 조절을 위한 간격 추가
-                          ],
-                        ),
-                      ),
-                  ],
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+
+
+
+              ],
             ),
+          ),
 
-
-
-          ],
-        ),
       ),
     ),
     );

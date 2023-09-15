@@ -13,6 +13,8 @@ void main() async{
   runApp(const MyApp());
 }
 
+
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -111,6 +113,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    String? maxWidthString = dotenv.get('MAX_WIDTH');
+
+    double maxWidth = 700; // 기본값 설정
+
+    if (maxWidthString != null) {
+      double? parsedMaxWidth = double.tryParse(maxWidthString);
+      if (parsedMaxWidth != null) {
+        maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당
+      }
+    }
+    double windowWidth = MediaQuery.of(context).size.width;
+    double containerWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
     return Scaffold(
       backgroundColor: Colors.grey[900],
 
@@ -128,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             Container(
               padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-              width: double.infinity,
+              width: containerWidth,
               height: 80,
               color: Colors.grey[830],
               child: TextField(
@@ -140,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // SizedBox(height: 20), // 간격 조절
             Container(
               padding:  EdgeInsets.fromLTRB(20, 0, 20, 0),
-              width: double.infinity,
+              width: containerWidth,
               height: 80,
               color: Colors.grey[830],
               child: TextField(

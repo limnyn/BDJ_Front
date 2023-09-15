@@ -136,6 +136,16 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
   @override
   Widget build(BuildContext context) {
+    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    double maxWidth = 700; // 기본값 설정
+    if (maxWidthString != null) {
+      double? parsedMaxWidth = double.tryParse(maxWidthString);
+      if (parsedMaxWidth != null) {
+        maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당
+      }
+    }
+    double windowWidth = MediaQuery.of(context).size.width;
+    double widgetWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: SafeArea(
@@ -144,77 +154,80 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
       Align(
         alignment: Alignment.center,
-        child:
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [ Container(
-                  child: OutlinedButton(
-                      onPressed: _goToHome,
-                      child: Text('Recent', style: TextStyle(color: Colors.grey),),
+        child: Container(
+          width: widgetWidth,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [ Container(
+                      child: OutlinedButton(
+                        onPressed: _goToHome,
+                        child: Text('Recent', style: TextStyle(color: Colors.grey),),
 
+                      ),
+                    ),
+
+                      OutlinedButton(
+                        onPressed: _showLogoutConfirmationDialog,
+                        child: Text('X', style: TextStyle(color: Colors.grey)),
+
+                      ),],
                   ),
-                ),
 
-                OutlinedButton(
-                  onPressed: _showLogoutConfirmationDialog,
-                  child: Text('X', style: TextStyle(color: Colors.grey)),
 
-              ),],
+                  Text('Youtube Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
+
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    width: double.infinity,
+                    height: 80,
+                    color: Colors.grey[830],
+                    child: TextField(
+                      controller: urlInputController,
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: "Youtube url을 입력해주세요.",
+                        labelStyle: TextStyle(color: Colors.grey[500]),
+                      ),
+                      onSubmitted: (_) {
+                        _requestSummary();
+                        setState(() {
+                          isstart = false; // 입력 후 isstart를 false로 설정
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    width: double.infinity,
+                    height: 80,
+                    color: Colors.grey[830],
+                    child: Text(
+                      summary_title,
+                      style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      child: Container(
+                        width: double.infinity,
+                        color: Colors.grey[830],
+                        child: Text(
+                          summary_result,
+                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                        ),
+                      ),
+                    ),
+                  ),
+
+
+                ],
+              ),
             ),
 
-
-            Text('Youtube Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
-
-              Container(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                width: double.infinity,
-                height: 80,
-                color: Colors.grey[830],
-                child: TextField(
-                  controller: urlInputController,
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: "Youtube url을 입력해주세요.",
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                  ),
-                  onSubmitted: (_) {
-                    _requestSummary();
-                    setState(() {
-                      isstart = false; // 입력 후 isstart를 false로 설정
-                    });
-                  },
-                ),
-              ),
-            Container(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              width: double.infinity,
-              height: 80,
-              color: Colors.grey[830],
-              child: Text(
-                summary_title,
-                style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                child: Container(
-                  width: double.infinity,
-                  color: Colors.grey[830],
-                  child: Text(
-                    summary_result,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                  ),
-                ),
-              ),
-            ),
-
-
-          ],
-        ),
 
       ),
       ),
