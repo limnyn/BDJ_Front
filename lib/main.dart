@@ -1,13 +1,14 @@
 
-
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:bdj_application/home.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/user_register.dart';
+import 'package:flutter/services.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
@@ -79,12 +80,12 @@ class _MyHomePageState extends State<MyHomePage> {
         });
         if (isLoggedIn) {
           Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  // builder: (context) => UrlToSummary(Token: auth_token, user_email: email,),
-                builder: (context) => Home(Token: auth_token, user_email: email,),
+            context,
+            MaterialPageRoute(
+              // builder: (context) => UrlToSummary(Token: auth_token, user_email: email,),
+              builder: (context) => Home(Token: auth_token, user_email: email,),
 
-              ),
+            ),
           );
         }
       } else {
@@ -99,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
         );
 
         ScaffoldMessenger.of(context).showSnackBar(snackBar); // 수정된 부분
-          print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
+        print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
       }
     } catch (error) {
@@ -122,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Login',
-            style: TextStyle(fontSize: 20,color: Colors.grey[500])),
+                style: TextStyle(fontSize: 20,color: Colors.grey[500])),
 
 
             Container(
@@ -153,9 +154,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ElevatedButton(
-              onPressed: _sendRequest,
-              child: Text('login', style: TextStyle(color: Colors.grey),),
-              style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey.shade800))
+                onPressed: _sendRequest,
+                child: Text('login', style: TextStyle(color: Colors.grey),),
+                style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.grey.shade800))
 
             ),
             SizedBox(

@@ -16,13 +16,13 @@ class Summary {
 }
 
 class SummaryItem {
-  final String urlLink;
+  final String video_id;
   final String title;
   final String summary;
   final String createdAt;
 
   SummaryItem({
-    required this.urlLink,
+    required this.video_id,
     required this.title,
     required this.summary,
     required this.createdAt,
@@ -104,12 +104,12 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-  void go_to_detail(String urllink, String title, String summary) {
+  void go_to_detail(String video_id, String title, String summary) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DetailSummary(
-          urllink: urllink,
+          video_id: video_id,
           title: title,
           summary: summary,
         ),
@@ -135,7 +135,7 @@ class _HomeState extends State<Home> {
           summaryLen: jsonResponse['summary_len'],
           summaries: List<SummaryItem>.from(jsonResponse['summaries'].map(
                 (summaryData) => SummaryItem(
-              urlLink: summaryData['url_link'],
+                  video_id: summaryData['video_id'],
               title: summaryData['title'],
               summary: summaryData['summary'],
               createdAt: summaryData['created_at'],
@@ -169,7 +169,8 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      body: Align(
+      body:SafeArea(
+        child: Align(
         alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +206,7 @@ class _HomeState extends State<Home> {
                         onTap: () {
                           // Column을 터치할 때 실행할 함수 호출
                           go_to_detail(
-                            summary!.summaries[i].urlLink,
+                            summary!.summaries[i].video_id,
                             summary!.summaries[i].title,
                             summary!.summaries[i].summary,
                           );
@@ -242,6 +243,7 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
+    ),
     );
   }
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 class DetailSummary extends StatelessWidget {
-  final String urllink;
+  final String video_id;
   final String title;
   final String summary;
 
   DetailSummary({
-    required this.urllink,
+    required this.video_id,
     required this.title,
     required this.summary,
   });
@@ -25,7 +25,7 @@ class DetailSummary extends StatelessWidget {
         child:
           Column(
               children: [
-              Text(urllink, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+              Text(video_id, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
               Container(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                 width: double.infinity,

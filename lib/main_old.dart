@@ -1,13 +1,14 @@
 
-
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:bdj_application/home.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/user_register.dart';
+import 'package:flutter/services.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
@@ -57,8 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
   void _sendRequest() async {
-    // var url = Uri.http('127.0.0.1:8000', '/login/');
-    // var url = Uri.http('10.0.2.2:8000', '/login/');
     var url = Uri.http(dotenv.get('API_IP'), '/login/');
 
     String email = emailController.text;
@@ -90,6 +89,17 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         }
       } else {
+        final jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
+        final emailError = jsonResponse["email"];
+        final passwordError = jsonResponse["password"];
+        final non_field_errors = jsonResponse["non_field_errors"];
+
+        final snackBar = SnackBar(
+          content: Text(emailError != null ? emailError[0] : passwordError != null ? passwordError[0] : non_field_errors[0]),
+
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(snackBar); // 수정된 부분
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
       }

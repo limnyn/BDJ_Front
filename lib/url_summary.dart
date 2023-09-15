@@ -18,6 +18,8 @@ class UrlToSummary extends StatefulWidget {
 
 class _UrlToSummaryState extends State<UrlToSummary> {
   String authHeader = "Bearer ";
+
+  String video_id = "";
   String summary_title = "";
   String summary_result = "";
   TextEditingController urlInputController = TextEditingController();
@@ -91,6 +93,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     String youtubeurl = urlInputController.text;
     summary_title = "요약중입니다...";
     summary_result = "";
+    video_id = "";
     try {
       var response = await http.post(
         url,
@@ -106,10 +109,12 @@ class _UrlToSummaryState extends State<UrlToSummary> {
       if (response.statusCode == 200) {
         var jsonResponse =
         convert.jsonDecode(response.body) as Map<String, dynamic>;
+        var videoid = jsonResponse["video_id"];
         var title = jsonResponse["title"];
         var summary = jsonResponse["summary"];
 
         setState(() {
+          video_id = videoid;
           summary_title = title;
           summary_result = summary;
         });
@@ -133,7 +138,11 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[900],
-      body: Align(
+      body: SafeArea(
+        child:
+
+
+      Align(
         alignment: Alignment.center,
         child:
         Column(
@@ -207,6 +216,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
           ],
         ),
 
+      ),
       ),
     );
   }
