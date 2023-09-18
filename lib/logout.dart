@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:bdj_application/main.dart';
-import 'package:flutter/material.dart';
-import 'package:bdj_application/main.dart';
+
+
 
 
 void logOut(BuildContext context){

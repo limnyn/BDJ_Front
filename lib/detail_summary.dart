@@ -13,9 +13,9 @@ class DetailSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    String maxWidthString = dotenv.get('MAX_WIDTH');
     double maxWidth = 700; // 기본값 설정
-    if (maxWidthString != null) {
+    if (maxWidthString.isNotEmpty) {
       double? parsedMaxWidth = double.tryParse(maxWidthString);
       if (parsedMaxWidth != null) {
         maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당

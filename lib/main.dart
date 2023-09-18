@@ -4,15 +4,38 @@ import 'dart:convert' as convert;
 import 'package:bdj_application/home.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:bdj_application/user_register.dart';
 import 'package:flutter/services.dart';
-void main() async{
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'package:bdj_application/user_register.dart';
+import 'package:bdj_application/token_manage.dart';
+
+
+Future<bool> getTokenAndRefreshIfNeeded() async {
+  final secureStorage = FlutterSecureStorage();
+  final String? accessToken = await secureStorage.read(key: 'access_token');
+  if (accessToken == null) {
+    return false;
+  } else {
+    refreshAccessToken();
+    return true;
+  }
+}
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  // 자동로그인
+  bool autoLogin = await getTokenAndRefreshIfNeeded();
+  if (autoLogin) {
+    runApp(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Home(),  // Replace with the desired screen to navigate to
+    ));
+  } else {
+    runApp(const MyApp());
+  }
 }
-
 
 
 class MyApp extends StatelessWidget {
@@ -65,28 +88,30 @@ class _MyHomePageState extends State<MyHomePage> {
     String email = emailController.text;
     String password = passwordController.text;
 
-
     try {
       var response = await http.post(url, body: {
         "email": email,
         "password": password,
       });
-
       if (response.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
+        var user = jsonResponse["user"];
+        var user_email = user["email"];
         var accessToken = jsonResponse["access_token"];
+        var refreshToken = jsonResponse["refresh_token"];
 
         setState(() {
           auth_token = accessToken;
           isLoggedIn = true;
         });
         if (isLoggedIn) {
+          setTokens(user_email, accessToken, refreshToken);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               // builder: (context) => UrlToSummary(Token: auth_token, user_email: email,),
-              builder: (context) => Home(Token: auth_token, user_email: email,),
-
+              // builder: (context) => Home(Token: auth_token, user_email: email,),
+              builder: (context) => Home(),
             ),
           );
         }
@@ -114,16 +139,17 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
 
-    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    String maxWidthString = dotenv.get('MAX_WIDTH');
 
     double maxWidth = 700; // 기본값 설정
 
-    if (maxWidthString != null) {
+    if (maxWidthString.isNotEmpty) {
       double? parsedMaxWidth = double.tryParse(maxWidthString);
       if (parsedMaxWidth != null) {
         maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당
       }
     }
+
     double windowWidth = MediaQuery.of(context).size.width;
     double containerWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
     return Scaffold(

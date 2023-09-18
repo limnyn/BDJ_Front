@@ -5,9 +5,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
-import 'package:bdj_application/main.dart';
-import 'package:bdj_application/logout.dart';
 
+import 'package:bdj_application/logout.dart';
+import 'package:bdj_application/token_manage.dart';
 class Summary {
   final int summaryLen;
   final List<SummaryItem> summaries;
@@ -33,25 +33,20 @@ class SummaryItem {
 }
 
 class Home extends StatefulWidget {
-  final String Token;
-  final String? user_email;
-
-  Home({required this.Token, this.user_email});
-
+  Home();
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
   String authHeader = "Bearer ";
-
   Summary? summary; // 객체를 선언하고 초기값을 null로
-
+  var user_email = "";
   void _goToUrlSummary() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => UrlToSummary(Token: widget.Token, user_email: widget.user_email,),
+        builder: (context) => UrlToSummary(),
       ),
     );
   }
@@ -99,6 +94,12 @@ class _HomeState extends State<Home> {
         setState(() {
           summary = newSummary;
         });
+      } else if (response.statusCode == 401) {
+        refreshAccessToken();
+        List<String?> tokens = await getTokens();
+        var access = tokens[1] ?? "";
+        authHeader = "Bearer " + access;
+        _recent_summary();  // Wait for recent summary request
       } else {
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
@@ -112,16 +113,24 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    authHeader += widget.Token;
-
+    initializeTokens();
     _recent_summary();
+  }
+
+  Future<void> initializeTokens() async {
+    List<String?> tokens = await getTokens();
+    // String accessToken = tokens[1]; // Assuming token is at index 1
+    // String userEmail = tokens[0]; // Assuming user email is at index 0
+    user_email = tokens[0] ?? '';
+    authHeader += tokens[1] ?? '';
+    // Use the token and userEmail as needed
   }
 
   @override
   Widget build(BuildContext context) {
-    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    String maxWidthString = dotenv.get('MAX_WIDTH');
     double maxWidth = 700; // 기본값 설정
-    if (maxWidthString != null) {
+    if (maxWidthString.isNotEmpty) {
       double? parsedMaxWidth = double.tryParse(maxWidthString);
       if (parsedMaxWidth != null) {
         maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당

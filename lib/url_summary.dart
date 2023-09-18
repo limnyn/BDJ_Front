@@ -3,15 +3,13 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:bdj_application/main.dart';
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
+import 'package:bdj_application/token_manage.dart';
 class UrlToSummary extends StatefulWidget {
-  final String Token;
-  final String? user_email;
 
-  UrlToSummary({required this.Token, this.user_email});
+  UrlToSummary();
 
   @override
   _UrlToSummaryState createState() => _UrlToSummaryState();
@@ -19,7 +17,7 @@ class UrlToSummary extends StatefulWidget {
 
 class _UrlToSummaryState extends State<UrlToSummary> {
   String authHeader = "Bearer ";
-
+  String user_email = "";
   String video_id = "";
   String summary_title = "";
   String summary_result = "";
@@ -30,7 +28,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Home(Token: widget.Token, user_email: widget.user_email,),
+        builder: (context) => Home(),
       ),
     );
   }
@@ -49,7 +47,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
           'Authorization': authHeader,
         },
         body: {
-          "email": widget.user_email,
+          "email": user_email,
           "url": youtubeurl,
         },
       );
@@ -77,16 +75,24 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    authHeader += widget.Token;
+    initializeTokens();
   }
 
+  Future<void> initializeTokens() async {
+    List<String?> tokens = await getTokens();
+    // String accessToken = tokens[1]; // Assuming token is at index 1
+    // String userEmail = tokens[0]; // Assuming user email is at index 0
+    user_email += tokens[0] ?? '';
+    authHeader += tokens[1] ?? '';
+    // Use the token and userEmail as needed
+  }
   @override
   Widget build(BuildContext context) {
-    String? maxWidthString = dotenv.get('MAX_WIDTH');
+    String maxWidthString = dotenv.get('MAX_WIDTH');
     double maxWidth = 700; // 기본값 설정
-    if (maxWidthString != null) {
+    if (maxWidthString.isNotEmpty) {
       double? parsedMaxWidth = double.tryParse(maxWidthString);
       if (parsedMaxWidth != null) {
         maxWidth = parsedMaxWidth; // 유효한 값인 경우에만 할당
