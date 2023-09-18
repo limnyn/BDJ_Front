@@ -4,10 +4,12 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 class DetailSummary extends StatelessWidget {
   final String video_id;
   final String title;
+  final String channel_name;
   final String summary;
 
   DetailSummary({
     required this.video_id,
+    required this.channel_name,
     required this.title,
     required this.summary,
   });
@@ -59,28 +61,45 @@ class DetailSummary extends StatelessWidget {
                     controller: _controller,
                   )
                 ),
-                Text(video_id, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-                Container(
-                  padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-                  width: double.infinity,
-                  height: 80,
-                  color: Colors.grey[830],
-                  child: Text(
-                    title,
-                    style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-                  ),
-                ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    child: Container(
-                      width: double.infinity,
-                      color: Colors.grey[830],
-                      child: Text(
-                        summary,
-                        style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                      ),
-                    ),
+                    padding: EdgeInsets.fromLTRB(20, 0, 10, 20),
+                    child:Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          width: double.infinity,
+                          color: Colors.grey[830],
+                          child: Text(
+                            "채널 명 : $channel_name",
+                            style: TextStyle(fontSize: 14, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                          ),
+                        ),
+
+                        Container(
+                          padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          width: double.infinity,
+
+                          color: Colors.grey[830],
+                          child: Text(
+                            title,
+                            style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          color: Colors.grey[830],
+                          child: Text(
+                            summary,
+                            style: TextStyle(fontSize: 15, color: Colors.grey[500]),
+                          ),
+                        ),
+                      ],
+                    )
+
+
+
                   ),
                 ),
               ],

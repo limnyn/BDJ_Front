@@ -41,10 +41,12 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   String authHeader = "Bearer ";
   String user_email = "";
   String video_id = "";
-  // String channel_name =  "";
   String summary_title = "";
   String summary_result = "";
+  String channel_name = "";
   TextEditingController urlInputController = TextEditingController();
+
+
   bool isstart = true; // isstart 변수 추가
 
   void _goToHome (){
@@ -62,24 +64,10 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     String youtubeurl = urlInputController.text;
     setState(() {
       video_id = extractYouTubeVideoId(youtubeurl) ?? "";
-
     });
-    // _controller = YoutubePlayerController.fromVideoId(
-    //   videoId: video_id,
-    //   autoPlay: false,
-    //   params: const YoutubePlayerParams(
-    //       mute: false,
-    //       showControls: true,
-    //       showFullscreenButton: true
-    //   ),
-    // );
-    print(video_id);
+
     isstart = false;
     summary_title = "요약중입니다...";
-    summary_result = "";
-    // channel_name = "";
-
-
 
     try {
       var response = await http.post(
@@ -94,21 +82,18 @@ class _UrlToSummaryState extends State<UrlToSummary> {
       );
 
       if (response.statusCode == 200) {
-        var jsonResponse =
-        convert.jsonDecode(response.body) as Map<String, dynamic>;
-        var videoid = jsonResponse["video_id"];
+        var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
+        var videoId = jsonResponse["video_id"];
         var title = jsonResponse["title"];
-        // var channelName = jsonResponse["channel_name"];
+        var channelName = jsonResponse["channel_name"];
         var summary = jsonResponse["summary"];
 
         setState(() {
-          video_id = videoid;
-          // channel_name = channelName;
+          video_id = videoId;
           summary_title = title;
           summary_result = summary;
-
+          channel_name = "채널 : " + channelName;
         });
-
 
       } else {
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
@@ -216,37 +201,47 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                     ),
                   ),
 
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
-                    width: double.infinity,
-                    height: 80,
-                    color: Colors.grey[830],
-                    child: Text(
-                      summary_title,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-                    ),
-                  ),
+
                   Expanded(
                     child: SingleChildScrollView(
                       padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-                      child: Container(
-                        width: double.infinity,
-                        color: Colors.grey[830],
-                        child: Text(
-                          summary_result,
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                        ),
-                      ),
+                      child:Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              channel_name,
+                              style: TextStyle(fontSize: 15, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              summary_title,
+                              style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+                            ),
+                          ),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              summary_result,
+                              style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                            ),
+                          ),
+                        ],
+                      )
                     ),
                   ),
-
-
                 ],
               ),
             ),
-
-
-      ),
+        ),
       ),
     );
   }

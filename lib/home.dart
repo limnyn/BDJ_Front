@@ -21,12 +21,14 @@ class Summary {
 class SummaryItem {
   final String video_id;
   final String title;
+  final String channel_name;
   final String summary;
   final String createdAt;
 
   SummaryItem({
     required this.video_id,
     required this.title,
+    required this.channel_name,
     required this.summary,
     required this.createdAt,
   });
@@ -51,7 +53,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void go_to_detail(String video_id, String title, String summary) {
+  void go_to_detail(String video_id, String title, String summary, String channelName) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -59,6 +61,7 @@ class _HomeState extends State<Home> {
           video_id: video_id,
           title: title,
           summary: summary,
+          channel_name: channelName,
         ),
       ),
     );
@@ -83,6 +86,7 @@ class _HomeState extends State<Home> {
           summaries: List<SummaryItem>.from(jsonResponse['summaries'].map(
                 (summaryData) => SummaryItem(
                   video_id: summaryData['video_id'],
+              channel_name: summaryData['channel_name'],
               title: summaryData['title'],
               summary: summaryData['summary'],
               createdAt: summaryData['created_at'],
@@ -186,11 +190,16 @@ class _HomeState extends State<Home> {
                                 summary!.summaries[i].video_id,
                                 summary!.summaries[i].title,
                                 summary!.summaries[i].summary,
+                                summary!.summaries[i].channel_name,
                               );
                             },
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Text(
+                                  '${summary!.summaries[i].channel_name}', // 요약 정보의 제목 출력
+                                  style: TextStyle(fontSize: 13, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                                ),
                                 Text(
                                   '${summary!.summaries[i].title}', // 요약 정보의 제목 출력
                                   style: TextStyle(fontSize: 16, color: Colors.grey[500]),
