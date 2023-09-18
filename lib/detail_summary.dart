@@ -31,52 +31,53 @@ class DetailSummary extends StatelessWidget {
       backgroundColor: Colors.grey[900],
 
       body:
-        Align(
-        alignment: Alignment.center,
-        child:
-            Container(
-              width: widgetWidth,
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        },
+          SafeArea(
+            child: Align(
+                alignment: Alignment.center,
+                child:
+                Container(
+                  width: widgetWidth,
+                  child: Column(
+                    children: [
+                      Container(
+                        alignment: Alignment.centerLeft,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
 
-                      child: Text('<', style: TextStyle(color: Colors.grey),),
-                    ),
-                  ),
-
-                  Text(video_id, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-                  Container(
-                    padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    width: double.infinity,
-                    height: 80,
-                    color: Colors.grey[830],
-                    child: Text(
-                      title,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-                    ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
-                      child: Container(
-                        width: double.infinity,
-                        color: Colors.grey[830],
-                        child: Text(
-                          summary,
-                          style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                          child: Text('<', style: TextStyle(color: Colors.grey),),
                         ),
                       ),
-                    ),
-                  ),],
-              ),
-            )
 
-        ),
+                      Text(video_id, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                        width: double.infinity,
+                        height: 80,
+                        color: Colors.grey[830],
+                        child: Text(
+                          title,
+                          style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                          child: Container(
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              summary,
+                              style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                            ),
+                          ),
+                        ),
+                      ),],
+                  ),
+                )
+            ),
+          ),
     );
   }
 }

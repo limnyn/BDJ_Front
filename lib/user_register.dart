@@ -63,7 +63,7 @@ class _UserRegisterState extends State<UserRegister> {
       }
     } catch (error) {
       final snackBar = SnackBar(
-        content: Text("HTTP 요청 실패: $error"),
+        content: Text("$url HTTP 요청 실패: $error"),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(snackBar); // 수정된 부분

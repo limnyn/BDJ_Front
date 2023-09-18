@@ -149,10 +149,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     return Scaffold(
       backgroundColor: Colors.grey[900],
       body: SafeArea(
-        child:
-
-
-      Align(
+        child: Align(
         alignment: Alignment.center,
         child: Container(
           width: widgetWidth,
