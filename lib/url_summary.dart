@@ -3,10 +3,30 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
+
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
 import 'package:bdj_application/token_manage.dart';
+
+String? extractYouTubeVideoId(String url) {
+  RegExp regExp = RegExp(
+    r"(?:https:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)",
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  Match? match = regExp.firstMatch(url);
+  if (match != null && match.groupCount >= 1) {
+    return match.group(1);
+  }
+
+  return null;
+}
+
+
 class UrlToSummary extends StatefulWidget {
 
   UrlToSummary();
@@ -16,9 +36,12 @@ class UrlToSummary extends StatefulWidget {
 }
 
 class _UrlToSummaryState extends State<UrlToSummary> {
+
+
   String authHeader = "Bearer ";
   String user_email = "";
   String video_id = "";
+  // String channel_name =  "";
   String summary_title = "";
   String summary_result = "";
   TextEditingController urlInputController = TextEditingController();
@@ -37,9 +60,27 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   void _requestSummary() async {
     var url = Uri.http(dotenv.get('API_IP'), '/youtube_summary/');
     String youtubeurl = urlInputController.text;
+    setState(() {
+      video_id = extractYouTubeVideoId(youtubeurl) ?? "";
+
+    });
+    // _controller = YoutubePlayerController.fromVideoId(
+    //   videoId: video_id,
+    //   autoPlay: false,
+    //   params: const YoutubePlayerParams(
+    //       mute: false,
+    //       showControls: true,
+    //       showFullscreenButton: true
+    //   ),
+    // );
+    print(video_id);
+    isstart = false;
     summary_title = "요약중입니다...";
     summary_result = "";
-    video_id = "";
+    // channel_name = "";
+
+
+
     try {
       var response = await http.post(
         url,
@@ -57,13 +98,18 @@ class _UrlToSummaryState extends State<UrlToSummary> {
         convert.jsonDecode(response.body) as Map<String, dynamic>;
         var videoid = jsonResponse["video_id"];
         var title = jsonResponse["title"];
+        // var channelName = jsonResponse["channel_name"];
         var summary = jsonResponse["summary"];
 
         setState(() {
           video_id = videoid;
+          // channel_name = channelName;
           summary_title = title;
           summary_result = summary;
+
         });
+
+
       } else {
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
@@ -78,18 +124,28 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   void initState() {
     super.initState();
     initializeTokens();
+
+
   }
+
 
   Future<void> initializeTokens() async {
     List<String?> tokens = await getTokens();
-    // String accessToken = tokens[1]; // Assuming token is at index 1
-    // String userEmail = tokens[0]; // Assuming user email is at index 0
     user_email += tokens[0] ?? '';
     authHeader += tokens[1] ?? '';
     // Use the token and userEmail as needed
   }
   @override
   Widget build(BuildContext context) {
+    var _controller = YoutubePlayerController.fromVideoId(
+      videoId: video_id,
+      autoPlay: false,
+      params: const YoutubePlayerParams(
+          mute: false,
+          showControls: true,
+          showFullscreenButton: true
+      ),
+    );
     String maxWidthString = dotenv.get('MAX_WIDTH');
     double maxWidth = 700; // 기본값 설정
     if (maxWidthString.isNotEmpty) {
@@ -144,14 +200,24 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                       ),
                       onSubmitted: (_) {
                         _requestSummary();
-                        setState(() {
-                          isstart = false; // 입력 후 isstart를 false로 설정
-                        });
+
                       },
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    padding: EdgeInsets.fromLTRB(20,0, 20, 0),
+                    width: double.infinity,
+                    color: Colors.grey[830],
+                    child: Visibility(
+                      visible:video_id.isNotEmpty, // isstart가 false일 때만 보이도록 설정
+                      child: YoutubePlayer(
+                        controller: _controller,
+                      ),
+                    ),
+                  ),
+
+                  Container(
+                    padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
                     width: double.infinity,
                     height: 80,
                     color: Colors.grey[830],
@@ -162,7 +228,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 20),
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
                       child: Container(
                         width: double.infinity,
                         color: Colors.grey[830],

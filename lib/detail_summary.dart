@@ -58,7 +58,6 @@ class DetailSummary extends StatelessWidget {
                   child:YoutubePlayer(
                     controller: _controller,
                   )
-
                 ),
                 Text(video_id, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
                 Container(
