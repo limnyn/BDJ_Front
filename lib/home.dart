@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
 import 'package:bdj_application/main.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:bdj_application/logout.dart';
+
 class Summary {
   final int summaryLen;
   final List<SummaryItem> summaries;
@@ -53,57 +56,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _showLogoutConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[900], // 배경색 설정
-          title: Text(
-            '로그아웃 확인',
-            style: TextStyle(color: Colors.white60), // 글자 색상 설정
-          ),
-          content: Text(
-            '로그아웃하시겠습니까?',
-            style: TextStyle(color: Colors.white60), // 글자 색상 설정
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Yes',
-                style: TextStyle(color: Colors.white60), // 글자 색상 설정
-              ),
-              onPressed: () {
-
-                _logOut();
-              },
-            ),
-            TextButton(
-              child: Text(
-                'No',
-                style: TextStyle(color: Colors.white60), // 글자 색상 설정
-              ),
-              onPressed: () {
-                // 로그아웃 작업 수행
-
-                Navigator.of(context).pop(); // 팝업 닫기
-              },
-            ),
-          ],
-        );
-
-      },
-    );
-  }
-
-  void _logOut() {
-    Navigator.of(context).pop(); // 팝업 닫기
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => MyApp(), // start page로
-      ),
-    );
-  }
   void go_to_detail(String video_id, String title, String summary) {
     Navigator.push(
       context,
@@ -201,9 +153,10 @@ class _HomeState extends State<Home> {
                   ),
 
                     OutlinedButton(
-                      onPressed: _showLogoutConfirmationDialog,
+                      onPressed:() {
+                        showLogoutDialog(context);
+                      },
                       child: Text('X', style: TextStyle(color: Colors.grey)),
-
                     ),],
                 ),
                 Text('Recent Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
@@ -252,13 +205,9 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                 ),
-
-
-
               ],
             ),
           ),
-
       ),
     ),
     );

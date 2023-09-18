@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:bdj_application/main.dart';
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:bdj_application/logout.dart';
 class UrlToSummary extends StatefulWidget {
   final String Token;
   final String? user_email;
@@ -33,59 +34,6 @@ class _UrlToSummaryState extends State<UrlToSummary> {
       ),
     );
   }
-
-  void _showLogoutConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.grey[900], // 배경색 설정
-          title: Text(
-            '로그아웃 확인',
-            style: TextStyle(color: Colors.white60), // 글자 색상 설정
-          ),
-          content: Text(
-            '로그아웃하시겠습니까?',
-            style: TextStyle(color: Colors.white60), // 글자 색상 설정
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Yes',
-                style: TextStyle(color: Colors.white60), // 글자 색상 설정
-              ),
-              onPressed: () {
-
-                _logOut();
-              },
-            ),
-            TextButton(
-              child: Text(
-                'No',
-                style: TextStyle(color: Colors.white60), // 글자 색상 설정
-              ),
-              onPressed: () {
-                // 로그아웃 작업 수행
-
-                Navigator.of(context).pop(); // 팝업 닫기
-              },
-            ),
-          ],
-        );
-
-      },
-    );
-  }
-
-  void _logOut() {
-    Navigator.of(context).pop(); // 팝업 닫기
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => MyApp(), // start page로
-      ),
-    );
-  }
-
 
 
   void _requestSummary() async {
@@ -167,7 +115,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                     ),
 
                       OutlinedButton(
-                        onPressed: _showLogoutConfirmationDialog,
+                        onPressed: () {showLogoutDialog(context);},
                         child: Text('X', style: TextStyle(color: Colors.grey)),
 
                       ),],
