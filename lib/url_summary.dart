@@ -9,7 +9,7 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
-import 'package:bdj_application/token_manage.dart';
+
 
 String? extractYouTubeVideoId(String url) {
   RegExp regExp = RegExp(
@@ -28,18 +28,20 @@ String? extractYouTubeVideoId(String url) {
 
 
 class UrlToSummary extends StatefulWidget {
+  final String token;
+  final String userEmail;
 
-  UrlToSummary();
+  UrlToSummary({required this.token, required this.userEmail});
 
   @override
   _UrlToSummaryState createState() => _UrlToSummaryState();
 }
 
 class _UrlToSummaryState extends State<UrlToSummary> {
+  final logOut = Logout();
 
 
-  String authHeader = "Bearer ";
-  String user_email = "";
+  String authHeader = "";
   String video_id = "";
   String summary_title = "";
   String summary_result = "";
@@ -49,11 +51,18 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
   bool isstart = true; // isstart 변수 추가
 
+  // void _goToLogin(BuildContext context){
+  //   Navigator.of(context).pushReplacement(
+  //     MaterialPageRoute(builder: (context) => MyApp(), //start page로
+  //     ),
+  //   );
+  // }
+
   void _goToHome (){
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Home(),
+        builder: (context) => Home(token: widget.token, userEmail: widget.userEmail),
       ),
     );
   }
@@ -64,6 +73,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     String youtubeurl = urlInputController.text;
     setState(() {
       video_id = extractYouTubeVideoId(youtubeurl) ?? "";
+      authHeader = "Bearer " + widget.token;
     });
 
     isstart = false;
@@ -76,7 +86,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
           'Authorization': authHeader,
         },
         body: {
-          "email": user_email,
+          "email": widget.userEmail,
           "url": youtubeurl,
         },
       );
@@ -108,18 +118,9 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   @override
   void initState() {
     super.initState();
-    initializeTokens();
-
-
   }
 
 
-  Future<void> initializeTokens() async {
-    List<String?> tokens = await getTokens();
-    user_email += tokens[0] ?? '';
-    authHeader += tokens[1] ?? '';
-    // Use the token and userEmail as needed
-  }
   @override
   Widget build(BuildContext context) {
     var _controller = YoutubePlayerController.fromVideoId(
@@ -162,10 +163,11 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                     ),
 
                       OutlinedButton(
-                        onPressed: () {showLogoutDialog(context);},
+                        onPressed: () {logOut.showLogoutDialog(context);},
                         child: Text('X', style: TextStyle(color: Colors.grey)),
 
-                      ),],
+                      ),
+                    ],
                   ),
 
 

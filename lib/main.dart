@@ -1,4 +1,4 @@
-
+//lib/main.dart
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:bdj_application/home.dart';
@@ -11,30 +11,11 @@ import 'package:bdj_application/user_register.dart';
 import 'package:bdj_application/token_manage.dart';
 
 
-Future<bool> getTokenAndRefreshIfNeeded() async {
-  final secureStorage = FlutterSecureStorage();
-  final String? accessToken = await secureStorage.read(key: 'access_token');
-  if (accessToken == null) {
-    return false;
-  } else {
-    refreshAccessToken();
-    return true;
-  }
-}
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
-  // 자동로그인
-  bool autoLogin = await getTokenAndRefreshIfNeeded();
-  if (autoLogin) {
-    runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Home(),  // Replace with the desired screen to navigate to
-    ));
-  } else {
-    runApp(const MyApp());
-  }
+  runApp((const MyApp()));
 }
 
 
@@ -66,11 +47,52 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // 홈페이지에 저장해야할 변수가 있거나 임시 저장해야할 정보가 있다면 여기에 작성
-  String auth_token = "";
+
+  //내부 저장할 파일들 (주로 인증 토큰)
+  static final storage = FlutterSecureStorage();
+  dynamic userRefreshToken = '';
+
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 비동기로 flutter secure storage 정보를 불러오는 작업
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncMethod();
+    });
+  }
+  _asyncMethod() async {
+    //read 함수로 key값에 맞는 정보를 불러오고 데이터타입은 String 타입
+    //데이터가 없을때는 null을 반환
+    userRefreshToken = await storage.read(key:'refresh_token');
+    print('자동 로그인 시도');
+    if (userRefreshToken != null) {
+      //refresh하기
+      var isRefreshed = await TokenManager().refreshAccessToken();
+      if (isRefreshed){
+        var accessToken = await storage.read(key:'access_token') ?? "";
+        var userEmail = await storage.read(key:'userEmail') ?? "";
+        print("accessToken refreshed in main.dart, 자동 로그인 완료");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            // builder: (context) => UrlToSummary(Token: auth_token, user_email: email,),
+            builder: (context) => Home( token: accessToken, userEmail: userEmail),
+          ),
+        );
+      } else {
+        print("refreshAessToken failed in main.dart init, login need!");
+      }
+
+    } else {
+      //refresh토큰으로 refresh하기
+      print("자동로그인 불가, 로그인이 필요합니다.");
+    }
+  }
 
   void goToSignUp (){
     Navigator.pushReplacement(
@@ -94,24 +116,38 @@ class _MyHomePageState extends State<MyHomePage> {
         "password": password,
       });
       if (response.statusCode == 200) {
+        print('login success');
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var user = jsonResponse["user"];
         var user_email = user["email"];
         var accessToken = jsonResponse["access_token"];
         var refreshToken = jsonResponse["refresh_token"];
+        print("email: $user_email");
+        print("accessToken: $accessToken");
+        print("refreshToken: $refreshToken");
 
-        setState(() {
-          auth_token = accessToken;
-          isLoggedIn = true;
-        });
+        print("on writting");
+        //storage에 저장부분
+        try{
+          await storage.write(key: "access_token", value: accessToken);
+
+        } catch (e) {
+          print("storage.write error : $e");
+        }
+
+        await storage.write(key: "refresh_token", value: refreshToken);
+        await storage.write(key: "user_email", value: user_email);
+        print("is written");
+        isLoggedIn = true;
+        print("isloggedin  = true");
+
         if (isLoggedIn) {
-          setTokens(user_email, accessToken, refreshToken);
+          print("push to home");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               // builder: (context) => UrlToSummary(Token: auth_token, user_email: email,),
-              // builder: (context) => Home(Token: auth_token, user_email: email,),
-              builder: (context) => Home(),
+              builder: (context) => Home(token: accessToken,userEmail: user_email,),
             ),
           );
         }

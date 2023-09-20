@@ -44,7 +44,7 @@ class _UserRegisterState extends State<UserRegister> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Home(),
+              builder: (context) => Home(token:auth_token, userEmail: email),
             ),
           );
         }

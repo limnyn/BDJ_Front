@@ -1,54 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:bdj_application/main.dart';
 
+class Logout {
+  static final storage = FlutterSecureStorage();
 
+  void logOut(BuildContext context) async {
+    await storage.deleteAll();
+    Navigator.of(context).pop();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => MyApp(), // Start page
+      ),
+    );
+  }
 
-
-void logOut(BuildContext context){
-  Navigator.of(context).pop();
-  Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) => MyApp(), //start page로
-    ),
-  );
-}
-
-
-Future<void> showLogoutDialog(BuildContext context) async {
-  return showDialog<void>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        backgroundColor: Colors.grey[900],
-        title: Text(
-          '로그아웃 확인',
-          style: TextStyle(color: Colors.white60),
-        ),
-        content: Text(
-          '로그아웃하시겠습니까?',
-          style: TextStyle(color: Colors.white60),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text(
-              'Yes',
-              style: TextStyle(color: Colors.white60),
-            ),
-            onPressed: () {
-              logOut(context); // Call the logOut function
-            },
+  Future<void> showLogoutDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: Text(
+            'Logout Confirmation',
+            style: TextStyle(color: Colors.white60),
           ),
-          TextButton(
-            child: Text(
-              'No',
-              style: TextStyle(color: Colors.white60),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog without logging out
-            },
+          content: Text(
+            'Are you sure you want to log out?',
+            style: TextStyle(color: Colors.white60),
           ),
-          // Add other buttons as needed
-        ],
-      );
-    },
-  );
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                'Yes',
+                style: TextStyle(color: Colors.white60),
+              ),
+              onPressed: () {
+                logOut(context); // Call the logOut function
+              },
+            ),
+            TextButton(
+              child: Text(
+                'No',
+                style: TextStyle(color: Colors.white60),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog without logging out
+              },
+            ),
+            // Add other buttons as needed
+          ],
+        );
+      },
+    );
+  }
 }

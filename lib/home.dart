@@ -1,3 +1,4 @@
+//lib/home.dart
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
@@ -7,7 +8,9 @@ import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
 
 import 'package:bdj_application/logout.dart';
-import 'package:bdj_application/token_manage.dart';
+
+
+
 class Summary {
   final int summaryLen;
   final List<SummaryItem> summaries;
@@ -35,20 +38,33 @@ class SummaryItem {
 }
 
 class Home extends StatefulWidget {
-  Home();
+  final String token;
+  final String userEmail;
+
+  Home({required this.token, required this.userEmail});
+
   @override
   _HomeState createState() => _HomeState();
 }
-
 class _HomeState extends State<Home> {
+  final logOut = Logout();
+
   String authHeader = "Bearer ";
   Summary? summary; // 객체를 선언하고 초기값을 null로
   var user_email = "";
+
+  @override
+  void initState()   {
+    super.initState();
+    print("home initstate접근");
+    _recent_summary();
+  }
+
   void _goToUrlSummary() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => UrlToSummary(),
+        builder: (context) => UrlToSummary(token: widget.token, userEmail:widget.userEmail),
       ),
     );
   }
@@ -71,15 +87,19 @@ class _HomeState extends State<Home> {
   void _recent_summary() async {
     // var url = Uri.http('10.0.2.2:8000', '/recent_summary/');
     var url = Uri.http(dotenv.get('API_IP'), '/recent_summary/');
+
     try {
+      setState(() {
+        authHeader = "Bearer " + widget.token;
+      });
       var response = await http.get(
         url,
         headers: <String, String>{
           'Authorization': authHeader,
         },
       );
-
       if (response.statusCode == 200) {
+        print('200 received in recent_summary');
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var newSummary = Summary(
           summaryLen: jsonResponse['summary_len'],
@@ -93,42 +113,22 @@ class _HomeState extends State<Home> {
             ),
           )),
         );
-
-        // setState를 호출하여 summary 객체를 업데이트하고 화면을 다시 그림
         setState(() {
           summary = newSummary;
         });
-      } else if (response.statusCode == 401) {
-        refreshAccessToken();
-        List<String?> tokens = await getTokens();
-        var access = tokens[1] ?? "";
-        authHeader = "Bearer " + access;
-        _recent_summary();  // Wait for recent summary request
-      } else {
+      }
+       else {
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
       }
     } catch (error) {
       // HTTP 요청 자체가 실패한 경우에 대한 예외 처리
       print("HTTP 요청 실패: $error");
+
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    initializeTokens();
-    _recent_summary();
-  }
 
-  Future<void> initializeTokens() async {
-    List<String?> tokens = await getTokens();
-    // String accessToken = tokens[1]; // Assuming token is at index 1
-    // String userEmail = tokens[0]; // Assuming user email is at index 0
-    user_email = tokens[0] ?? '';
-    authHeader += tokens[1] ?? '';
-    // Use the token and userEmail as needed
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,13 +164,24 @@ class _HomeState extends State<Home> {
 
                     ),
                   ),
-
-                    OutlinedButton(
-                      onPressed:() {
-                        showLogoutDialog(context);
-                      },
-                      child: Text('X', style: TextStyle(color: Colors.grey)),
-                    ),],
+                    Row(
+                      children: [
+                        OutlinedButton(
+                          onPressed:() {
+                            _recent_summary();
+                          },
+                          child: Text('R', style: TextStyle(color: Colors.grey)),
+                        ),
+                        OutlinedButton(
+                          onPressed:() {
+                            logOut.showLogoutDialog(context);
+                          },
+                          child: Text('X', style: TextStyle(color: Colors.grey)),
+                        )
+                      ],
+                    )
+                    ,
+                  ],
                 ),
                 Text('Recent Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
 
