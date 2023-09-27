@@ -212,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 controller: emailController,
                 style: TextStyle(color: Colors.white),
                 decoration: InputDecoration(labelText: "Email", labelStyle: TextStyle(color:  Colors.grey[500]),),
+                keyboardType: TextInputType.emailAddress,
               ),
             ),
             // SizedBox(height: 20), // 간격 조절

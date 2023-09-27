@@ -1,6 +1,7 @@
 // lib/url_summary.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
@@ -74,10 +75,10 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     setState(() {
       video_id = extractYouTubeVideoId(youtubeurl) ?? "";
       authHeader = "Bearer " + widget.token;
+      summary_title = "요약중입니다...";
     });
 
     isstart = false;
-    summary_title = "요약중입니다...";
 
     try {
       var response = await http.post(
@@ -125,7 +126,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   Widget build(BuildContext context) {
     var _controller = YoutubePlayerController.fromVideoId(
       videoId: video_id,
-      autoPlay: false,
+      autoPlay: true,
       params: const YoutubePlayerParams(
           mute: false,
           showControls: true,
@@ -161,12 +162,28 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
                       ),
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: "$summary_title\n$channel_name\n$summary_result"));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("복사되었습니다."),
+                              ),
+                            );
+                          },
+                          child: Text('copy', style: TextStyle(color: Colors.grey)),
+                        ),
+                        OutlinedButton(
+                          onPressed: () {logOut.showLogoutDialog(context);},
+                          child: Text('X', style: TextStyle(color: Colors.grey)),
 
-                      OutlinedButton(
-                        onPressed: () {logOut.showLogoutDialog(context);},
-                        child: Text('X', style: TextStyle(color: Colors.grey)),
+                        ),
+                      ],
+                    )
 
-                      ),
                     ],
                   ),
 

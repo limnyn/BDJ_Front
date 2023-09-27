@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
@@ -19,7 +20,7 @@ class DetailSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final _controller = YoutubePlayerController.fromVideoId(
       videoId: video_id,
-      autoPlay: false,
+      autoPlay: true,
       params: const YoutubePlayerParams(
           mute: false,
           showControls: true,
@@ -47,15 +48,29 @@ class DetailSummary extends StatelessWidget {
             width: widgetWidth,
             child: Column(
               children: [
-                Container(
-                  alignment: Alignment.centerLeft,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text('<', style: TextStyle(color: Colors.grey)),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('<', style: TextStyle(color: Colors.grey)),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: "$title\n$channel_name\n$summary"));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("복사되었습니다."),
+                            ),
+                        );
+                      },
+                      child: Text('copy', style: TextStyle(color: Colors.grey)),
+                    ),
+                  ],
                 ),
+
                 Container(
                   alignment: Alignment.center,
                   child:YoutubePlayer(
