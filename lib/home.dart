@@ -4,9 +4,10 @@ import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'package:bdj_application/main.dart';
 import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
-
+import 'package:bdj_application/audio_summary.dart';
 import 'package:bdj_application/logout.dart';
 
 
@@ -68,7 +69,14 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-
+  void _goToAudioSummary() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AudioToSummary(token: widget.token, userEmail:widget.userEmail),
+      ),
+    );
+  }
   void go_to_detail(String video_id, String title, String summary, String channelName) {
     Navigator.push(
       context,
@@ -118,6 +126,11 @@ class _HomeState extends State<Home> {
         });
       }
        else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => MyApp(), // Start page
+          ),
+        );
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
       }
@@ -155,15 +168,23 @@ class _HomeState extends State<Home> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
-
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ Container(
-                    child: OutlinedButton(
-                      onPressed: _goToUrlSummary,
-                      child: Text('Yotube', style: TextStyle(color: Colors.grey),),
-
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          child: OutlinedButton(
+                            onPressed: _goToUrlSummary,
+                            child: Text('Yotube', style: TextStyle(color: Colors.grey),),
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: _goToAudioSummary,
+                          child: Text('Audio', style: TextStyle(color: Colors.grey),),
+                        ),
+                      ],
                     ),
-                  ),
+
                     Row(
                       children: [
                         OutlinedButton(

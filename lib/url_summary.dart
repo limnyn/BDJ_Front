@@ -12,20 +12,23 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
 
 
+import 'package:meta/meta.dart';
+
 String? extractYouTubeVideoId(String url) {
-  RegExp regExp = RegExp(
-    r"(?:https:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)",
-    caseSensitive: false,
-    multiLine: false,
-  );
+  final pattern = RegExp(
+      r'(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/watch\?.*?v=|youtube\.com/watch\?.*?&v=)([a-zA-Z0-9_-]+)');
 
-  Match? match = regExp.firstMatch(url);
-  if (match != null && match.groupCount >= 1) {
-    return match.group(1);
+  final match = pattern.firstMatch(url);
+  if (match != null) {
+    final videoId = match.group(1);
+    print(videoId);
+    return videoId;
+  } else {
+    print('$url의 Video ID를 찾을 수 없습니다.');
+    return null;
   }
-
-  return null;
 }
+
 
 
 class UrlToSummary extends StatefulWidget {
@@ -38,7 +41,12 @@ class UrlToSummary extends StatefulWidget {
 
 class _UrlToSummaryState extends State<UrlToSummary> {
   final logOut = Logout();
-  final YoutubePlayerController _controller = YoutubePlayerController();
+  final YoutubePlayerController _controller = YoutubePlayerController.fromVideoId(videoId: "", autoPlay:  true,
+      params: const YoutubePlayerParams(
+      mute: false,
+      showControls: true,
+      showFullscreenButton: true
+  ),);
   String authHeader = "";
   String video_id = "";
   String summary_title = "";
@@ -69,6 +77,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
       channel_name = "";
       summary_result = "";
       _controller.loadVideoById(videoId: video_id);
+      _controller.playVideo();
       isstart = true;
     });
 
@@ -89,12 +98,19 @@ class _UrlToSummaryState extends State<UrlToSummary> {
         var title = jsonResponse["title"];
         var channelName = jsonResponse["channel_name"];
         var summary = jsonResponse["summary"];
-        setState(() {
-          video_id = videoId;
-          summary_title = title;
-          summary_result = summary;
-          channel_name = "채널 : " + channelName;
-        });
+        if (summary.length == 0){
+          setState(() {
+            summary_title = "이 영상은 요약이 불가능합니다.\n다른 Url을 입력해주세요";
+          });
+        }
+        else{
+          setState(() {
+            video_id = videoId;
+            summary_title = title;
+            summary_result = summary;
+            channel_name = "채널 : " + channelName;
+          });
+        }
       } else {
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
         print("오류 응답 본문: ${response.body}");
