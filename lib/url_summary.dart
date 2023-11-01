@@ -12,7 +12,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
 
 
-import 'package:meta/meta.dart';
 
 String? extractYouTubeVideoId(String url) {
   final pattern = RegExp(
@@ -178,7 +177,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                     )
                   ],
                 ),
-                Text('Youtube Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
+                Text('Youtube Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
 
                 Container(
                   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),

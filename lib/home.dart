@@ -204,7 +204,7 @@ class _HomeState extends State<Home> {
                     ,
                   ],
                 ),
-                Text('Recent Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
+                Text('Latest Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
 
                 Expanded(
                   child: SingleChildScrollView(

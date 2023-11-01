@@ -1,7 +1,5 @@
 // lib/url_summary.dart
-import 'dart:io';
 import 'dart:convert' as convert;
-import 'dart:async';
 import 'package:http/http.dart' as http;
 
 
@@ -51,7 +49,7 @@ class _AudioToSummaryState extends State<AudioToSummary> {
     // 사용자의 기기에서 mp4, mp3, acc, wmv 파일을 열 수 있는 앱이 없다는 메시지를 표시합니다.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("사용자의 기기에서 mp4, mp3, acc, wmv 파일을 열 수 있는 앱이 없습니다."),
+        content: Text("사용자의 기기에서 mp4, mp3, acc, wmv 파일이 선택되지 않았습니다."),
       ),
     );
   }
@@ -167,10 +165,11 @@ class _AudioToSummaryState extends State<AudioToSummary> {
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ Container(
-                    child: OutlinedButton(
-                      onPressed: _goToHome,
-                      child: Text('Recent', style: TextStyle(color: Colors.grey),),
+                  children: [
+                    Container(
+                      child: OutlinedButton(
+                        onPressed: _goToHome,
+                        child: Text('Recent', style: TextStyle(color: Colors.grey),),
                     ),
                   ),
                     Row(
@@ -195,12 +194,9 @@ class _AudioToSummaryState extends State<AudioToSummary> {
                     )
                   ],
                 ),
-                Text('Audio Summary', style: TextStyle(fontSize: 20, color: Colors.grey[500])),
-
-
+                Text('Audio Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
 
                 Column(
-
                   children:[
                     Text(
                       isstart,
@@ -208,9 +204,8 @@ class _AudioToSummaryState extends State<AudioToSummary> {
                     ),
                     OutlinedButton(
                       onPressed :_pickFile,
-                      child: Text('Select File',style: TextStyle(fontSize: 15, color: Colors.grey[500])),),
+                      child: Text('Select File',style: TextStyle(fontSize: 12, color: Colors.grey[500])),),
                   ]
-
                 ),
                 Expanded(
                   child: SingleChildScrollView(
