@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -31,14 +31,14 @@ String? extractYouTubeVideoId(String url) {
 
 
 class UrlToSummary extends StatefulWidget {
-  final String token;
-  final String userEmail;
-  UrlToSummary({required this.token, required this.userEmail});
+  final bool isLoggedIn;
+  UrlToSummary({required this.isLoggedIn});
   @override
   _UrlToSummaryState createState() => _UrlToSummaryState();
 }
 
 class _UrlToSummaryState extends State<UrlToSummary> {
+  static final storage = FlutterSecureStorage();
   final logOut = Logout();
   final YoutubePlayerController _controller = YoutubePlayerController.fromVideoId(videoId: "", autoPlay:  true,
       params: const YoutubePlayerParams(
@@ -59,7 +59,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Home(token: widget.token, userEmail: widget.userEmail),
+        builder: (context) => Home(isLoggedIn: widget.isLoggedIn),
       ),
     );
   }
@@ -70,7 +70,6 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     var url = Uri.http(dotenv.get('API_IP'), '/youtube_summary/');
     String youtubeurl = urlInputController.text;
     video_id = extractYouTubeVideoId(youtubeurl) ?? "";
-    authHeader = "Bearer " + widget.token;
     setState(() {
       summary_title = "요약중입니다...";
       channel_name = "";
@@ -79,7 +78,8 @@ class _UrlToSummaryState extends State<UrlToSummary> {
       _controller.playVideo();
       isstart = true;
     });
-
+    dynamic user_email = await storage.read(key: "email");
+    user_email ??="";
     try {
       var response = await http.post(
         url,
@@ -87,7 +87,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
           'Authorization': authHeader,
         },
         body: {
-          "email": widget.userEmail,
+          "email":user_email,
           "url": youtubeurl,
         },
       );

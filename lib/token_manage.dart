@@ -9,26 +9,6 @@ class TokenManager {
   // 이 클래스 레벨에서 storage를 static으로 선언
   static final storage = FlutterSecureStorage();
 
-  // set Tokens 메소드와 나머지 메소드는 그대로 유지
-
-  // set Tokens
-  static Future<bool> setTokens(String user_email, String access_token, String refresh_token) async {
-    await storage.write(key: "user_email", value: user_email);
-    await storage.write(key: "access_token", value: access_token);
-    await storage.write(key: "refresh_token", value: refresh_token);
-    print("Token saved!");
-    return true;
-  }
-
-  // get Tokens List
-  static Future<List<String?>> getTokens() async {
-    return [
-      await storage.read(key: "user_email"),
-      await storage.read(key: "access_token"),
-      await storage.read(key: "refresh_token"),
-    ];
-  }
-
   // if 401 refresh Tokens
   Future<bool> refreshAccessToken() async {
     dynamic refreshToken = await storage.read(key: "refresh_token");

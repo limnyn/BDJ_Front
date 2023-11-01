@@ -7,10 +7,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/main.dart';
 import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
-import 'package:bdj_application/audio_summary.dart';
+import 'package:bdj_application/login.dart';
 import 'package:bdj_application/logout.dart';
-
-
+import 'package:bdj_application/check_audio.dart' as audioPage;
 
 class Summary {
   final int summaryLen;
@@ -39,10 +38,10 @@ class SummaryItem {
 }
 
 class Home extends StatefulWidget {
-  final String token;
-  final String userEmail;
+  final bool isLoggedIn;
 
-  Home({required this.token, required this.userEmail});
+
+  Home({required this.isLoggedIn});
 
   @override
   _HomeState createState() => _HomeState();
@@ -65,15 +64,7 @@ class _HomeState extends State<Home> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => UrlToSummary(token: widget.token, userEmail:widget.userEmail),
-      ),
-    );
-  }
-  void _goToAudioSummary() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AudioToSummary(token: widget.token, userEmail:widget.userEmail),
+        builder: (context) => UrlToSummary(isLoggedIn: widget.isLoggedIn),
       ),
     );
   }
@@ -92,14 +83,12 @@ class _HomeState extends State<Home> {
   }
 
 
-  void _recent_summary() async {
+  Future<void> _recent_summary() async {
     // var url = Uri.http('10.0.2.2:8000', '/recent_summary/');
     var url = Uri.http(dotenv.get('API_IP'), '/recent_summary/');
 
     try {
-      setState(() {
-        authHeader = "Bearer " + widget.token;
-      });
+
       var response = await http.get(
         url,
         headers: <String, String>{
@@ -179,7 +168,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                         OutlinedButton(
-                          onPressed: _goToAudioSummary,
+                          onPressed:(){audioPage.goToAudioSummary(context, widget.isLoggedIn);},
                           child: Text('Audio', style: TextStyle(color: Colors.grey),),
                         ),
                       ],
@@ -191,67 +180,79 @@ class _HomeState extends State<Home> {
                           onPressed:() {
                             _recent_summary();
                           },
-                          child: Text('R', style: TextStyle(color: Colors.grey)),
+                          child: Text('ReLoad', style: TextStyle(color: Colors.grey)),
                         ),
-                        OutlinedButton(
-                          onPressed:() {
-                            logOut.showLogoutDialog(context);
-                          },
-                          child: Text('X', style: TextStyle(color: Colors.grey)),
-                        )
+                        if (widget.isLoggedIn)
+                          OutlinedButton(
+                            onPressed:() {
+                              logOut.showLogoutDialog(context);
+                            },
+                            child: Text('LogOut', style: TextStyle(color: Colors.grey)),
+                          ),
+
+                        // if widget.isLoggedIn == false 인 경우에만 "Login" 버튼 보이게
+                        if (!widget.isLoggedIn)
+                          OutlinedButton(
+                            onPressed:() {
+                              goToLogin(context);
+                            },
+                            child: Text('Login', style: TextStyle(color: Colors.grey)),
+                          ),
                       ],
-                    )
-                    ,
+                    ),
                   ],
                 ),
                 Text('Latest Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
 
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    child: summary == null // summary가 null인 경우 로딩 중 화면을 보여줄 수 있음
-                        ? CircularProgressIndicator() // 로딩 중 표시
-                        : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (int i = 0; i < summary!.summaries.length; i++)
-                          GestureDetector(
-                            onTap: () {
-                              // Column을 터치할 때 실행할 함수 호출
-                              go_to_detail(
-                                summary!.summaries[i].video_id,
-                                summary!.summaries[i].title,
-                                summary!.summaries[i].summary,
-                                summary!.summaries[i].channel_name,
-                              );
-                            },
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${summary!.summaries[i].channel_name}', // 요약 정보의 제목 출력
-                                  style: TextStyle(fontSize: 13, color: Colors.grey[500], fontStyle: FontStyle.italic),
-                                ),
-                                Text(
-                                  '${summary!.summaries[i].title}', // 요약 정보의 제목 출력
-                                  style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-                                ),
-                                Text(
-                                  '${summary!.summaries[i].summary}', // 요약 정보의 내용 출력
-                                  style: TextStyle(fontSize: 13, color: Colors.grey[500]),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 5,
-                                ),
-                                Container(
-                                  height: 1.0,
-                                  width: double.infinity,
-                                  color: Colors.grey[500],
-                                ),
-                                SizedBox(height: 10), // 아이템 간격 조절을 위한 간격 추가
-                              ],
+                  child:RefreshIndicator(
+                    onRefresh: _recent_summary,
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: summary == null // summary가 null인 경우 로딩 중 화면을 보여줄 수 있음
+                          ? CircularProgressIndicator() // 로딩 중 표시
+                          : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (int i = 0; i < summary!.summaries.length; i++)
+                            GestureDetector(
+                              onTap: () {
+                                // Column을 터치할 때 실행할 함수 호출
+                                go_to_detail(
+                                  summary!.summaries[i].video_id,
+                                  summary!.summaries[i].title,
+                                  summary!.summaries[i].summary,
+                                  summary!.summaries[i].channel_name,
+                                );
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${summary!.summaries[i].channel_name}', // 요약 정보의 제목 출력
+                                    style: TextStyle(fontSize: 13, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                                  ),
+                                  Text(
+                                    '${summary!.summaries[i].title}', // 요약 정보의 제목 출력
+                                    style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                                  ),
+                                  Text(
+                                    '${summary!.summaries[i].summary}', // 요약 정보의 내용 출력
+                                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 5,
+                                  ),
+                                  Container(
+                                    height: 1.0,
+                                    width: double.infinity,
+                                    color: Colors.grey[500],
+                                  ),
+                                  SizedBox(height: 10), // 아이템 간격 조절을 위한 간격 추가
+                                ],
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

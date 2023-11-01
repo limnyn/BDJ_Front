@@ -1,37 +1,36 @@
-// lib/url_summary.dart
+// lib/audio_summary.dart
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
 import 'package:file_picker/file_picker.dart';
-
+import 'package:bdj_application/token_manage.dart';
 
 class AudioToSummary extends StatefulWidget {
-  final String token;
-  final String userEmail;
-  AudioToSummary({required this.token, required this.userEmail});
+  AudioToSummary();
   @override
   _AudioToSummaryState createState() => _AudioToSummaryState();
 }
 
 class _AudioToSummaryState extends State<AudioToSummary> {
   final logOut = Logout();
+  static final storage = FlutterSecureStorage();
+
   String openai_key = dotenv.get('WHISPER_KEY');
 
-  String authHeader = "";
+  String authHeader = "Bearer ";
   String whisper_result = "";
   String summary_result = "";
 
-  String filePath = "";
+  var filePath;
   String isstart = "";
 
   void _pickFile() async {
@@ -54,41 +53,50 @@ class _AudioToSummaryState extends State<AudioToSummary> {
     );
   }
 
-  void sendAudioFile(String filePath) async {
+  void sendAudioFile(var filePath) async {
     var url = Uri.https("api.openai.com", "v1/audio/transcriptions");
     var start = DateTime.now();
-
+    print("audiofile 전송 시작");
     //응답보내기
     var request = http.MultipartRequest('POST', url);
     request.headers.addAll(({"Authorization": "Bearer "+openai_key}));
     request.fields["model"] = 'whisper-1';
     request.fields["language"] = "en";
     request.files.add(await http.MultipartFile.fromPath('file', filePath));
-    var response = await request.send();
-    var newResponse = await http.Response.fromStream(response);
-    final responseData = convert.json.decode(newResponse.body);
-    print(responseData["text"]);
-    //만약 1200자 이하면 요약 하지 않는다.
-    var sttEnd = DateTime.now();
-    setState(() {
-      whisper_result = responseData["text"];
-      isstart = "STT 변환 까지 걸린 시간 : ${sttEnd.difference(start)}";
-    });
-    print("STT 완료 까지 걸린 시간 : ${sttEnd.difference(start)}");
-    //응답받고 그 이후 추가해야함
-    _requestSummary();
-    var summEnd = DateTime.now();
-    setState(() {
-      isstart = "시작부터 요약 완료까지 걸린 시간 : ${summEnd.difference(start)}";
-    });
-    print("시작부터 요약 완료까지 걸린 시간 : ${summEnd.difference(start)}");
+
+    try{
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        var newResponse = await http.Response.fromStream(response);
+        final responseData = convert.json.decode(newResponse.body);
+        print(responseData["text"]);
+        var sttEnd = DateTime.now();
+        setState(() {
+          whisper_result = responseData["text"];
+          isstart = "STT 변환 까지 걸린 시간 : ${sttEnd.difference(start)}";
+        });
+        print("STT 완료 까지 걸린 시간 : ${sttEnd.difference(start)}");
+        //응답받고 그 이후 추가해야함
+        _requestSummary();
+        var summEnd = DateTime.now();
+        setState(() {
+          isstart = "시작부터 요약 완료까지 걸린 시간 : ${summEnd.difference(start)}";
+        });
+        print("시작부터 요약 완료까지 걸린 시간 : ${summEnd.difference(start)}");
+      } else {
+        print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
+        print("오류 응답 본문: ${response.stream}");
+      }
+    } catch (error) {
+      print("HTTP 요청 실패: $error");
+    }
   }
 
   void _goToHome (){
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => Home(token: widget.token, userEmail: widget.userEmail),
+        builder: (context) => Home(isLoggedIn: true,),
       ),
     );
   }
@@ -96,19 +104,19 @@ class _AudioToSummaryState extends State<AudioToSummary> {
 
   void _requestSummary() async {
     var url = Uri.http(dotenv.get('API_IP'), '/text_summary/');
-    authHeader = "Bearer " + widget.token;
     setState(() {
       summary_result = "요약중입니다...";
     });
-
+    await TokenManager().refreshAccessToken();
+    dynamic access_token = await storage.read(key: "access_token");
+    access_token ??="";
     try {
       var response = await http.post(
         url,
         headers: <String, String>{
-          'Authorization': authHeader,
+          'Authorization': authHeader + access_token,
         },
         body: {
-          "email": widget.userEmail,
           "source_text": whisper_result,
         },
       );
@@ -195,7 +203,6 @@ class _AudioToSummaryState extends State<AudioToSummary> {
                   ],
                 ),
                 Text('Audio Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
-
                 Column(
                   children:[
                     Text(

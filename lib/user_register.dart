@@ -3,6 +3,7 @@ import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/home.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserRegister extends StatefulWidget {
   @override
@@ -11,8 +12,8 @@ class UserRegister extends StatefulWidget {
 
 class _UserRegisterState extends State<UserRegister> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static final storage = FlutterSecureStorage();
 
-  String auth_token = "";
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController1 = TextEditingController();
   TextEditingController passwordController2 = TextEditingController();
@@ -34,17 +35,15 @@ class _UserRegisterState extends State<UserRegister> {
 
       if (response.statusCode == 201) {
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
-        var accessToken = jsonResponse["access_token"];
-
-        setState(() {
-          auth_token = accessToken;
-          isLoggedIn = true;
-        });
+        var refreshToken = jsonResponse["refresh_token"];
+        await storage.write(key: "email", value: email);
+        await storage.write(key: "refresh_token", value: refreshToken);
+        isLoggedIn = true;
         if (isLoggedIn) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Home(token:auth_token, userEmail: email),
+              builder: (context) => Home(isLoggedIn: true),
             ),
           );
         }
