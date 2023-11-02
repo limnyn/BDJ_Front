@@ -49,28 +49,7 @@ class DetailSummary extends StatelessWidget {
             width: widgetWidth,
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('<', style: TextStyle(color: Colors.grey)),
-                    ),
-                    OutlinedButton(
-                      onPressed: () {
-                        Clipboard.setData(ClipboardData(text: "$title\n$channel_name\n$summary"));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("복사되었습니다."),
-                          ),
-                        );
-                      },
-                      child: Text('copy', style: TextStyle(color: Colors.grey)),
-                    ),
-                  ],
-                ),
+
 
                 Container(
                     alignment: Alignment.center,
@@ -83,6 +62,7 @@ class DetailSummary extends StatelessWidget {
                       padding: EdgeInsets.fromLTRB(20, 0, 10, 20),
                       child:Column(
                         children: [
+
                           Container(
                             alignment: Alignment.centerLeft,
                             padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -93,17 +73,31 @@ class DetailSummary extends StatelessWidget {
                               style: TextStyle(fontSize: 14, color: Colors.grey[500], fontStyle: FontStyle.italic),
                             ),
                           ),
-
-                          Container(
-                            padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-                            width: double.infinity,
-
-                            color: Colors.grey[830],
-                            child: Text(
-                              title,
-                              style: TextStyle(fontSize: 18, color: Colors.grey[500]),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                title,
+                                style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+                              ),
+                              IconButton(onPressed: () {
+                                Clipboard.setData(ClipboardData(text: "$title\n$channel_name\n$summary"));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("복사되었습니다."),
+                                  ),
+                                );
+                              }, icon: Icon(Icons.copy_all)
+                              ),
+                            ],
                           ),
+                          // Container(
+                          //   padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                          //   width: double.infinity,
+                          //
+                          //   color: Colors.grey[830],
+                          //   child:
+                          // ),
                           Container(
                             width: double.infinity,
                             color: Colors.grey[830],

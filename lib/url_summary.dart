@@ -178,12 +178,12 @@ class _UrlToSummaryState extends State<UrlToSummary> {
                       ),
                       IconButton(onPressed: () {
                         Clipboard.setData(ClipboardData(text: "$summary_title\n$channel_name\n$summary_result"));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text("복사되었습니다."),
-                          ),
-                        );
-                      }, icon: Icon(Icons.copy_outlined)
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("복사되었습니다."),
+                            ),
+                          );
+                        }, icon: Icon(Icons.copy_outlined)
                       ),
                     ],
                   ),
