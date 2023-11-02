@@ -22,9 +22,10 @@ class DetailSummary extends StatelessWidget {
       videoId: video_id,
       autoPlay: true,
       params: const YoutubePlayerParams(
-          mute: false,
-          showControls: true,
-          showFullscreenButton: true
+        mute: false,
+        showControls: true,
+        showFullscreenButton: true,
+
       ),
     );
 
@@ -61,9 +62,9 @@ class DetailSummary extends StatelessWidget {
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: "$title\n$channel_name\n$summary"));
                         ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("복사되었습니다."),
-                            ),
+                          SnackBar(
+                            content: Text("복사되었습니다."),
+                          ),
                         );
                       },
                       child: Text('copy', style: TextStyle(color: Colors.grey)),
@@ -72,47 +73,47 @@ class DetailSummary extends StatelessWidget {
                 ),
 
                 Container(
-                  alignment: Alignment.center,
-                  child:YoutubePlayer(
-                    controller: _controller,
-                  )
+                    alignment: Alignment.center,
+                    child:YoutubePlayer(
+                      controller: _controller,
+                    )
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(20, 0, 10, 20),
-                    child:Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                          width: double.infinity,
-                          color: Colors.grey[830],
-                          child: Text(
-                            "채널 명 : $channel_name",
-                            style: TextStyle(fontSize: 14, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                      padding: EdgeInsets.fromLTRB(20, 0, 10, 20),
+                      child:Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              "채널 명 : $channel_name",
+                              style: TextStyle(fontSize: 14, color: Colors.grey[500], fontStyle: FontStyle.italic),
+                            ),
                           ),
-                        ),
 
-                        Container(
-                          padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-                          width: double.infinity,
+                          Container(
+                            padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                            width: double.infinity,
 
-                          color: Colors.grey[830],
-                          child: Text(
-                            title,
-                            style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+                            color: Colors.grey[830],
+                            child: Text(
+                              title,
+                              style: TextStyle(fontSize: 18, color: Colors.grey[500]),
+                            ),
                           ),
-                        ),
-                        Container(
-                          width: double.infinity,
-                          color: Colors.grey[830],
-                          child: Text(
-                            summary,
-                            style: TextStyle(fontSize: 15, color: Colors.grey[500]),
+                          Container(
+                            width: double.infinity,
+                            color: Colors.grey[830],
+                            child: Text(
+                              summary,
+                              style: TextStyle(fontSize: 15, color: Colors.grey[500]),
+                            ),
                           ),
-                        ),
-                      ],
-                    )
+                        ],
+                      )
 
 
 

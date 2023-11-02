@@ -5,11 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:bdj_application/main.dart';
+import 'package:bdj_application/menubar.dart';
 import 'package:bdj_application/detail_summary.dart';
 import 'package:bdj_application/url_summary.dart';
-import 'package:bdj_application/login.dart';
-import 'package:bdj_application/logout.dart';
-import 'package:bdj_application/check_audio.dart' as audioPage;
 
 class Summary {
   final int summaryLen;
@@ -47,7 +45,6 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 class _HomeState extends State<Home> {
-  final logOut = Logout();
 
   String authHeader = "Bearer ";
   Summary? summary; // 객체를 선언하고 초기값을 null로
@@ -102,7 +99,7 @@ class _HomeState extends State<Home> {
           summaryLen: jsonResponse['summary_len'],
           summaries: List<SummaryItem>.from(jsonResponse['summaries'].map(
                 (summaryData) => SummaryItem(
-                  video_id: summaryData['video_id'],
+              video_id: summaryData['video_id'],
               channel_name: summaryData['channel_name'],
               title: summaryData['title'],
               summary: summaryData['summary'],
@@ -114,7 +111,7 @@ class _HomeState extends State<Home> {
           summary = newSummary;
         });
       }
-       else {
+      else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => MyApp(), // Start page
@@ -146,63 +143,23 @@ class _HomeState extends State<Home> {
     double widgetWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey[900],
+        title: Text('Latest Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
+        iconTheme: IconThemeData(color:Colors.grey[500]),
+      ),
+      // drawerEnableOpenDragGesture: true,
+      drawer: MenuDrawer(pageName: 'home',isLoggedIn: widget.isLoggedIn,),
       backgroundColor: Colors.grey[900],
       body:SafeArea(
         child: Align(
-        alignment: Alignment.center,
-        child:
+          alignment: Alignment.center,
+          child:
           Container(
             width: widgetWidth,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          child: OutlinedButton(
-                            onPressed: _goToUrlSummary,
-                            child: Text('Yotube', style: TextStyle(color: Colors.grey),),
-                          ),
-                        ),
-                        OutlinedButton(
-                          onPressed:(){audioPage.goToAudioSummary(context, widget.isLoggedIn);},
-                          child: Text('Audio', style: TextStyle(color: Colors.grey),),
-                        ),
-                      ],
-                    ),
-
-                    Row(
-                      children: [
-                        OutlinedButton(
-                          onPressed:() {
-                            _recent_summary();
-                          },
-                          child: Text('ReLoad', style: TextStyle(color: Colors.grey)),
-                        ),
-                        if (widget.isLoggedIn)
-                          OutlinedButton(
-                            onPressed:() {
-                              logOut.showLogoutDialog(context);
-                            },
-                            child: Text('LogOut', style: TextStyle(color: Colors.grey)),
-                          ),
-
-                        // if widget.isLoggedIn == false 인 경우에만 "Login" 버튼 보이게
-                        if (!widget.isLoggedIn)
-                          OutlinedButton(
-                            onPressed:() {
-                              goToLogin(context);
-                            },
-                            child: Text('Login', style: TextStyle(color: Colors.grey)),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-                Text('Latest Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
 
                 Expanded(
                   child:RefreshIndicator(
@@ -259,8 +216,8 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
+        ),
       ),
-    ),
     );
   }
 }

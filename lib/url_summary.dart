@@ -7,9 +7,11 @@ import 'package:http/http.dart' as http;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:bdj_application/menubar.dart';
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
+
 
 
 
@@ -41,11 +43,11 @@ class _UrlToSummaryState extends State<UrlToSummary> {
   static final storage = FlutterSecureStorage();
   final logOut = Logout();
   final YoutubePlayerController _controller = YoutubePlayerController.fromVideoId(videoId: "", autoPlay:  true,
-      params: const YoutubePlayerParams(
-      mute: false,
-      showControls: true,
-      showFullscreenButton: true
-  ),);
+    params: const YoutubePlayerParams(
+        mute: false,
+        showControls: true,
+        showFullscreenButton: true
+    ),);
   String authHeader = "";
   String video_id = "";
   String summary_title = "";
@@ -138,6 +140,12 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     double windowWidth = MediaQuery.of(context).size.width;
     double widgetWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey[900],
+        title: Text('Youtube Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
+        iconTheme: IconThemeData(color: Colors.grey[500]),
+      ),
+      drawer: MenuDrawer(pageName: 'youtube', isLoggedIn: widget.isLoggedIn,),
       backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Align(
@@ -147,102 +155,84 @@ class _UrlToSummaryState extends State<UrlToSummary> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ Container(
-                    child: OutlinedButton(
-                      onPressed: _goToHome,
-                      child: Text('Recent', style: TextStyle(color: Colors.grey),),
-                    ),
-                  ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            Clipboard.setData(ClipboardData(text: "$summary_title\n$channel_name\n$summary_result"));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("복사되었습니다."),
-                              ),
-                            );
-                          },
-                          child: Text('copy', style: TextStyle(color: Colors.grey)),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {logOut.showLogoutDialog(context);},
-                          child: Text('X', style: TextStyle(color: Colors.grey)),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                Text('Youtube Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
-
                 Container(
                   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                   width: double.infinity,
                   height: 80,
                   color: Colors.grey[830],
-                  child: TextField(
-                    controller: urlInputController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: "Youtube url을 입력해주세요.",
-                      labelStyle: TextStyle(color: Colors.grey[500]),
-                    ),
-                    onSubmitted: (_) {
-                      _requestSummary();
-                    },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: TextField(
+                          controller: urlInputController,
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            labelText: "Youtube url을 입력해주세요.",
+                            labelStyle: TextStyle(color: Colors.grey[500]),
+                          ),
+                          onSubmitted: (_) {
+                            _requestSummary();
+                          },
+                        ),
+                      ),
+                      IconButton(onPressed: () {
+                        Clipboard.setData(ClipboardData(text: "$summary_title\n$channel_name\n$summary_result"));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("복사되었습니다."),
+                          ),
+                        );
+                      }, icon: Icon(Icons.copy_outlined)
+                      ),
+                    ],
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.fromLTRB(20,0, 20, 0),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                   width: double.infinity,
                   color: Colors.grey[830],
                   child: Visibility(
-                    visible:isstart,
+                    visible: isstart,
                     child: YoutubePlayer(
                       controller: _controller,
                     ),
                   ),
                 ),
-
-
                 Expanded(
                   child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
-                      child:Column(
-                        children: [
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
-                            width: double.infinity,
-                            color: Colors.grey[830],
-                            child: Text(
-                              channel_name,
-                              style: TextStyle(fontSize: 15, color: Colors.grey[500], fontStyle: FontStyle.italic),
-                            ),
+                    padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          width: double.infinity,
+                          color: Colors.grey[830],
+                          child: Text(
+                            channel_name,
+                            style: TextStyle(fontSize: 15, color: Colors.grey[500], fontStyle: FontStyle.italic),
                           ),
-                          Container(
-                            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                            width: double.infinity,
-                            color: Colors.grey[830],
-                            child: Text(
-                              summary_title,
-                              style: TextStyle(fontSize: 18, color: Colors.grey[500]),
-                            ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                          width: double.infinity,
+                          color: Colors.grey[830],
+                          child: Text(
+                            summary_title,
+                            style: TextStyle(fontSize: 18, color: Colors.grey[500]),
                           ),
-                          Container(
-                            width: double.infinity,
-                            color: Colors.grey[830],
-                            child: Text(
-                              summary_result,
-                              style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-                            ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          color: Colors.grey[830],
+                          child: Text(
+                            summary_result,
+                            style: TextStyle(fontSize: 16, color: Colors.grey[500]),
                           ),
-                        ],
-                      )
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -253,5 +243,4 @@ class _UrlToSummaryState extends State<UrlToSummary> {
     );
   }
 }
-
 

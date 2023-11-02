@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-
+import 'package:bdj_application/menubar.dart';
 import 'package:bdj_application/home.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bdj_application/logout.dart';
@@ -162,6 +162,12 @@ class _AudioToSummaryState extends State<AudioToSummary> {
     double windowWidth = MediaQuery.of(context).size.width;
     double widgetWidth = (windowWidth > maxWidth ? maxWidth: windowWidth);
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey[900],
+        title: Text('Audio Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
+        iconTheme: IconThemeData(color:Colors.grey[500]),
+      ),
+      drawer: MenuDrawer(pageName: 'audio',isLoggedIn: true,),
       backgroundColor: Colors.grey[900],
       body: SafeArea(
         child: Align(
@@ -174,45 +180,34 @@ class _AudioToSummaryState extends State<AudioToSummary> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      child: OutlinedButton(
-                        onPressed: _goToHome,
-                        child: Text('Recent', style: TextStyle(color: Colors.grey),),
-                    ),
-                  ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        OutlinedButton(
-                          onPressed: () {
+                        if(summary_result != "")
+                          IconButton(onPressed: () {
                             Clipboard.setData(ClipboardData(text: "$summary_result"));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text("복사되었습니다."),
                               ),
                             );
-                          },
-                          child: Text('copy', style: TextStyle(color: Colors.grey)),
-                        ),
-                        OutlinedButton(
-                          onPressed: () {logOut.showLogoutDialog(context);},
-                          child: Text('X', style: TextStyle(color: Colors.grey)),
-                        ),
+                          }, icon: Icon(Icons.copy_outlined)
+                          ),
+
                       ],
                     )
                   ],
                 ),
-                Text('Audio Summary', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
                 Column(
-                  children:[
-                    Text(
-                      isstart,
-                      style: const TextStyle(fontSize: 15, color:  Colors.grey),
-                    ),
-                    OutlinedButton(
-                      onPressed :_pickFile,
-                      child: Text('Select File',style: TextStyle(fontSize: 12, color: Colors.grey[500])),),
-                  ]
+                    children:[
+                      Text(
+                        isstart,
+                        style: const TextStyle(fontSize: 15, color:  Colors.grey),
+                      ),
+                      OutlinedButton(
+                        onPressed :_pickFile,
+                        child: Text('Select File',style: TextStyle(fontSize: 12, color: Colors.grey[500])),),
+                    ]
                 ),
                 Expanded(
                   child: SingleChildScrollView(
@@ -239,5 +234,4 @@ class _AudioToSummaryState extends State<AudioToSummary> {
     );
   }
 }
-
 
