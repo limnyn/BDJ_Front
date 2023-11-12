@@ -55,7 +55,6 @@ class _HomeState extends State<Home> {
   @override
   void initState()   {
     super.initState();
-    print("home initstate접근");
     _recent_summary();
   }
 
@@ -84,7 +83,7 @@ class _HomeState extends State<Home> {
 
   Future<void> _recent_summary() async {
     // var url = Uri.http('10.0.2.2:8000', '/recent_summary/'); //localhost server test
-    var url = Uri.http(dotenv.get('API_IP'), '/summary/recent/');
+    var url = Uri.http(dotenv.get('API_IP'), '/api/summary/recent/');
 
     try {
 
@@ -95,7 +94,6 @@ class _HomeState extends State<Home> {
         },
       );
       if (response.statusCode == 200) {
-        print('200 received in recent_summary');
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var newSummary = Summary(
           summaryLen: jsonResponse['summary_len'],

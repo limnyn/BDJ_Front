@@ -69,7 +69,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
 
   void _requestSummary() async {
-    var url = Uri.http(dotenv.get('API_IP'), '/summary/url/');
+    var url = Uri.http(dotenv.get('API_IP'), '/api/summary/url/');
     String youtubeurl = urlInputController.text;
     video_id = extractYouTubeVideoId(youtubeurl) ?? "";
     setState(() {

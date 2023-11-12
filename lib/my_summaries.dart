@@ -52,7 +52,6 @@ class _MySummariesState extends State<MySummaries> {
   @override
   void initState()   {
     super.initState();
-    print("MySummaries initstate접근");
     _my_summaries();
   }
 
@@ -74,7 +73,7 @@ class _MySummariesState extends State<MySummaries> {
 
 
   Future<void> _my_summaries() async {
-    var url = Uri.http(dotenv.get('API_IP'), '/user/summaries/');
+    var url = Uri.http(dotenv.get('API_IP'), '/api/user/summaries/');
     dynamic user_email = await storage.read(key: "email");
     await TokenManager().refreshAccessToken();
     dynamic access_token = await storage.read(key: "access_token");
@@ -89,7 +88,6 @@ class _MySummariesState extends State<MySummaries> {
         },
       );
       if (response.statusCode == 200) {
-        print('200 received in my_summaries');
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var newSummary = Summary(
           summaryLen: jsonResponse['summary_len'],

@@ -29,7 +29,6 @@ class TokenManager {
       if (response.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var newAccessToken = jsonResponse["access"];
-        print("refreshed access Token : $newAccessToken");
         await storage.write(key: "access_token", value: newAccessToken);
         return true;
       } else {
