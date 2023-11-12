@@ -103,7 +103,7 @@ class _AudioToSummaryState extends State<AudioToSummary> {
 
 
   void _requestSummary() async {
-    var url = Uri.http(dotenv.get('API_IP'), '/text_summary/');
+    var url = Uri.http(dotenv.get('API_IP'), '/summary/text/');
     setState(() {
       summary_result = "요약중입니다...";
     });

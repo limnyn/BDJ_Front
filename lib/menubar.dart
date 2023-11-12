@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:bdj_application/login.dart';
 import 'package:bdj_application/logout.dart';
+import 'package:bdj_application/my_summaries.dart';
 import 'package:bdj_application/home.dart';
 import 'package:bdj_application/url_summary.dart';
 import 'package:bdj_application/check_audio.dart' as audioPage;
@@ -28,17 +29,22 @@ class MenuDrawer extends StatelessWidget {
             child:Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text('메뉴 바 헤더', style:TextStyle(color: Colors.grey)),
+                Text('글 간 추', style:TextStyle(color: Colors.grey)),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       if (isLoggedIn)
-                        TextButton(onPressed: () {
-
-                        }, child: Text('My Summeries', style:TextStyle(color: Colors.grey)),
-                        ),
+                          TextButton(onPressed: () {
+                            if (pageName!= "mySummaries"){
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => MySummaries(isLoggedIn: true),
+                                  ));
+                              }
+                            }, child: Text('My Summaries', style:TextStyle(color: pageName == "mySummaries" ? Colors.grey : Colors.white24)),
+                          ),
                       if (isLoggedIn)
                         TextButton(
                           onPressed:() {

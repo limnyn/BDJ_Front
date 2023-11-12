@@ -69,7 +69,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
 
 
   void _requestSummary() async {
-    var url = Uri.http(dotenv.get('API_IP'), '/youtube_summary/');
+    var url = Uri.http(dotenv.get('API_IP'), '/summary/url/');
     String youtubeurl = urlInputController.text;
     video_id = extractYouTubeVideoId(youtubeurl) ?? "";
     setState(() {
@@ -93,6 +93,7 @@ class _UrlToSummaryState extends State<UrlToSummary> {
           "url": youtubeurl,
         },
       );
+
       if (response.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var videoId = jsonResponse["video_id"];

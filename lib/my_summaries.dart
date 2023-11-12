@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'package:bdj_application/main.dart';
+import 'package:bdj_application/token_manage.dart';
+import 'package:bdj_application/home.dart';
 import 'package:bdj_application/menubar.dart';
 import 'package:bdj_application/detail_summary.dart';
-import 'package:bdj_application/url_summary.dart';
+
 
 class Summary {
   final int summaryLen;
@@ -37,36 +39,25 @@ class SummaryItem {
   });
 }
 
-class Home extends StatefulWidget {
+class MySummaries extends StatefulWidget {
   final bool isLoggedIn;
-
-
-  Home({required this.isLoggedIn});
-
+  MySummaries({required this.isLoggedIn});
   @override
-  _HomeState createState() => _HomeState();
+  _MySummariesState createState() => _MySummariesState();
 }
-class _HomeState extends State<Home> {
-
+class _MySummariesState extends State<MySummaries> {
+  static final storage = FlutterSecureStorage();
   String authHeader = "Bearer ";
   Summary? summary; // 객체를 선언하고 초기값을 null로
-
-
   @override
   void initState()   {
     super.initState();
-    print("home initstate접근");
-    _recent_summary();
+    print("MySummaries initstate접근");
+    _my_summaries();
   }
 
-  void _goToUrlSummary() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UrlToSummary(isLoggedIn: widget.isLoggedIn),
-      ),
-    );
-  }
+
+
   void go_to_detail(String video_id, String title, String summary, String channelName) {
     Navigator.push(
       context,
@@ -82,20 +73,23 @@ class _HomeState extends State<Home> {
   }
 
 
-  Future<void> _recent_summary() async {
-    // var url = Uri.http('10.0.2.2:8000', '/recent_summary/'); //localhost server test
-    var url = Uri.http(dotenv.get('API_IP'), '/summary/recent/');
-
+  Future<void> _my_summaries() async {
+    var url = Uri.http(dotenv.get('API_IP'), '/user/summaries/');
+    dynamic user_email = await storage.read(key: "email");
+    await TokenManager().refreshAccessToken();
+    dynamic access_token = await storage.read(key: "access_token");
     try {
-
-      var response = await http.get(
+      var response = await http.post(
         url,
         headers: <String, String>{
-          'Authorization': authHeader,
+          'Authorization': authHeader + access_token,
+        },
+        body: {
+        "email":user_email,
         },
       );
       if (response.statusCode == 200) {
-        print('200 received in recent_summary');
+        print('200 received in my_summaries');
         var jsonResponse = convert.jsonDecode(response.body) as Map<String, dynamic>;
         var newSummary = Summary(
           summaryLen: jsonResponse['summary_len'],
@@ -117,7 +111,7 @@ class _HomeState extends State<Home> {
       else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => MyApp(), // Start page
+            builder: (context) => Home(isLoggedIn: false), // Start page
           ),
         );
         print("HTTP 요청 오류 - 상태 코드: ${response.statusCode}");
@@ -149,11 +143,11 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[900],
-        title: Text('Latest Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
+        title: Text('My Summarized Videos', style: TextStyle(fontSize: 18, color: Colors.grey[500])),
         iconTheme: IconThemeData(color:Colors.grey[500]),
       ),
       // drawerEnableOpenDragGesture: true,
-      drawer: MenuDrawer(pageName: 'home',isLoggedIn: widget.isLoggedIn,),
+      drawer: MenuDrawer(pageName: 'mySummaries',isLoggedIn: widget.isLoggedIn,),
       backgroundColor: Colors.grey[900],
       body:SafeArea(
         child: Align(
@@ -167,7 +161,7 @@ class _HomeState extends State<Home> {
 
                 Expanded(
                   child:RefreshIndicator(
-                    onRefresh: _recent_summary,
+                    onRefresh: _my_summaries,
                     child: SingleChildScrollView(
                       padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                       child: summary == null // summary가 null인 경우 로딩 중 화면을 보여줄 수 있음
