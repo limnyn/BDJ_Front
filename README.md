@@ -1,16 +1,11 @@
 # bdj_application
 
-http_connect
+http_connect to nas docker server(bdj_backend limnyn.asuscomm.com:54345)
 
-## Getting Started
+![팜플렛 (3)](https://github.com/limnyn/BDJ_Front/assets/99390399/ec48ec75-3d27-432c-b9a3-0aaf8af60de8)
 
-This project is a starting point for a Flutter application.
+![image](https://github.com/limnyn/BDJ_Front/assets/99390399/3f591499-ba89-402e-b5d8-210f0aa6f03b)
+![image](https://github.com/limnyn/BDJ_Front/assets/99390399/2f4f9ad1-d34f-4daa-b323-cf25f80f3dad)
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
